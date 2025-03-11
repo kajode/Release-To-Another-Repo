@@ -164,7 +164,7 @@ async function DecodeAssetFile() {
     let dir
     try {
         // log all files in the assetFile directory recursively
-        console.log(fs.readdirSync(assetFile, { recursive: true }))
+        core.info(fs.readdirSync(assetFile, { recursive: true }))
         dir = fs.readdirSync(assetFile)
     } catch (err) {
         core.debug(err)
