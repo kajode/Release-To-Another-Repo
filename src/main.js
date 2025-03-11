@@ -163,8 +163,23 @@ async function DecodeAssetFile() {
     core.info('DecodeAssetFile Start')
     let dir
     try {
-        // log all files in the assetFile directory recursively
-        core.info(fs.readdirSync(assetFile, { recursive: true }))
+        // Log all files in the assetFile directory recursively with better formatting
+        core.info('Recursively listing all available assets:')
+        const allFiles = fs.readdirSync(assetFile, { recursive: true })
+        if (allFiles && allFiles.length > 0) {
+            core.info('Found the following assets:')
+            allFiles.forEach(file => {
+                const fullPath = path.join(assetFile, file)
+                const stats = fs.statSync(fullPath)
+                const fileType = stats.isDirectory() ? 'Directory' : 'File'
+                const fileSize = stats.isFile() ? `(${formatFileSize(stats.size)})` : ''
+                core.info(`  - ${file} [${fileType}] ${fileSize}`)
+            })
+        } else {
+            core.info('No assets found in the recursive search')
+        }
+        
+        // Original non-recursive listing for processing
         dir = fs.readdirSync(assetFile)
     } catch (err) {
         core.debug(err)
@@ -189,6 +204,14 @@ async function DecodeAssetFile() {
         })
     }
     core.info('DecodeAssetFile Done')
+}
+
+// Helper function to format file size in a human-readable format
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes'
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(1024))
+    return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 //API: https://octokit.github.io/rest.js/v16#repos-upload-release-asset
